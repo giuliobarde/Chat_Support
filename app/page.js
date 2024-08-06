@@ -2,10 +2,12 @@
 
 import { Box, TextField, IconButton, Stack, Fab, Typography } from '@mui/material';
 import { useState, useRef, useEffect } from 'react';
-import MessageIcon from '@mui/icons-material/Message'; // Import an icon for the button
-import SendIcon from '@mui/icons-material/Send'; // Import an icon for the send button
+import MessageIcon from '@mui/icons-material/Message';
+import SendIcon from '@mui/icons-material/Send';
 
 export default function Home() {
+
+  // Set initial message
   const [messages, setMessages] = useState([
     {
       role: "assistant",
@@ -17,14 +19,13 @@ export default function Home() {
   const [showChat, setShowChat] = useState(false);
   const messagesEndRef = useRef(null);
 
+  // Send query to LLM
   const sendMessage = async () => {
     if (message.trim()) {
-      // Add the user's message to the chat immediately
       const newMessage = { role: 'user', content: message };
       const updatedMessages = [...messages, newMessage];
       setMessages(updatedMessages);
 
-      // Clear the text field
       setMessage('');
 
       try {
@@ -64,9 +65,10 @@ export default function Home() {
     }
   };
 
+  // Submit using return key
   const handleKeyDown = (event) => {
     if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault(); // Prevent the default behavior of the Enter key
+      event.preventDefault();
       sendMessage();
     }
   };
@@ -135,7 +137,6 @@ export default function Home() {
                 </Box>
               </Box>
             ))}
-            {/* This empty box will be used to scroll into view */}
             <Box ref={messagesEndRef} />
           </Stack>
           <Box
@@ -154,7 +155,7 @@ export default function Home() {
               fullWidth
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              onKeyDown={handleKeyDown} // Add key down handler
+              onKeyDown={handleKeyDown}
               variant="outlined"
               size="small"
               InputProps={{
