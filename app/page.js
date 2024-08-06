@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, TextField, IconButton, Stack, Fab } from '@mui/material';
+import { Box, TextField, IconButton, Stack, Fab, Typography } from '@mui/material';
 import { useState, useRef, useEffect } from 'react';
 import MessageIcon from '@mui/icons-material/Message'; // Import an icon for the button
 import SendIcon from '@mui/icons-material/Send'; // Import an icon for the send button
@@ -85,8 +85,17 @@ export default function Home() {
       display="flex"
       flexDirection="column"
       alignItems="center"
+      justifyContent="center"
       position="relative"
     >
+      <Typography
+        variant="h1"
+        component="h1"
+        style={{ color: "#1976d2" }}
+      >
+        Headstarter Chatbot
+      </Typography>
+
       {showChat && (
         <Box
           width="400px"

@@ -36,7 +36,7 @@ export async function POST(req) {
         { role: "system", content: systemPrompt },
         ...data.messages
       ],
-      model: "gpt-4",
+      model: "gpt-3.5-turbo",
       stream: true,
     });
 
