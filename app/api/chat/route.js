@@ -16,48 +16,54 @@ General Inquiries: For any other questions about features, subscription plans, o
 Our support team is dedicated to providing you with a smooth and effective practice experience. We'll do our best to respond promptly and help you get back on track. Thank you for using Headstarter, and happy practicing!`;
 
 export async function POST(req) {
+  try {
+    const rawBody = await req.text();
+    console.log('Raw body received:', rawBody);
+
+    let data;
     try {
-        // Read raw body
-        const rawBody = await req.text();
-
-        // Parse JSON body
-        let data;
-        try {
-            data = rawBody ? JSON.parse(rawBody) : {};
-        } catch (parseError) {
-            console.error('Error parsing request body:', parseError);
-            return NextResponse.json(
-                { error: 'Invalid JSON' }, 
-                { status: 400 }
-            );
-        }
-
-        // Initialize OpenAI
-        const openai = new OpenAI();
-
-        // Generate a completion
-        const completion = await openai.chat.completions.create({
-            messages: [
-                {"role": "system", "content": systemPrompt}, ...data],
-            model: "gpt-3.5-turbo",
-        });
-
-        // Check for valid choices
-        if (!completion.choices || completion.choices.length === 0) {
-            throw new Error('No choices returned from OpenAI API');
-        }
-
-        // Return response
-        return NextResponse.json(
-            { message: completion.choices[0].message.content }, 
-            { status: 200 }
-        );
-
-    } catch (error) {
-        console.error('Error:', error);
-        return NextResponse.json(
-            { error: 'An error occurred' }, 
-            { status: 500 }
-        );
+      data = rawBody ? JSON.parse(rawBody) : {};
+    } catch (parseError) {
+      console.error('Error parsing request body:', parseError);
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
+
+    console.log('Parsed data:', data);
+
+    const openai = new OpenAI();
+    const completion = await openai.chat.completions.create({
+      messages: [
+        { role: "system", content: systemPrompt },
+        ...data.messages
+      ],
+      model: "gpt-4",
+      stream: true,
+    });
+
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of completion) {
+            const text = chunk.choices[0]?.delta?.content || '';
+            if (text) {
+              const encodedText = encoder.encode(text);
+              controller.enqueue(encodedText);
+            }
+          }
+        } catch (err) {
+          controller.error(err);
+        } finally {
+          controller.close();
+        }
+      }
+    });
+
+    return new NextResponse(stream, {
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    return NextResponse.json({ error: 'An error occurred' }, { status: 500 });
+  }
 }
