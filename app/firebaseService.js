@@ -1,7 +1,7 @@
 import { auth } from "./firebase/config";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { collection, doc, setDoc, getDocs, query, where } from "firebase/firestore";
-import { db } from "./firebase/config"; // Ensure you have imported Firestore correctly
+import { db } from "./firebase/config"; // Import db from firebase/config
 
 // User sign-up
 export const signUpUser = async (username, email, password) => {
@@ -23,7 +23,7 @@ export const signUpUser = async (username, email, password) => {
 export const signInUser = async (identifier, password) => {
   try {
     let user;
-    const usersRef = collection(db, "users"); // Correct way to reference a collection
+    const usersRef = collection(db, "users");
     if (identifier.includes("@")) {
       user = await signInWithEmailAndPassword(auth, identifier, password);
     } else {

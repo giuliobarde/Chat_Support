@@ -2,9 +2,11 @@
 
 import Alert from '@mui/material/Alert';
 import { useState } from 'react';
-import { Container, TextField, Button, Typography, Box, Link, AppBar, Toolbar, IconButton } from '@mui/material';
+import { Container, TextField, Button, Typography, Box, Link, AppBar, Toolbar, IconButton, InputAdornment, IconButton as MuiIconButton } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import CloseIcon from '@mui/icons-material/Close';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { signInUser } from '../firebaseService';
 
 const SignIn = () => {
@@ -12,6 +14,7 @@ const SignIn = () => {
         identifier: '',
         password: ''
     });
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState(null);
     const router = useRouter();
 
@@ -42,6 +45,14 @@ const SignIn = () => {
 
     const handleRedirectHome = () => {
         router.push('/');
+    };
+
+    const handlePasswordVisibilityToggle = () => {
+        setShowPassword((prev) => !prev);
+    };
+
+    const handleConfirmPasswordVisibilityToggle = () => {
+        setShowConfirmPassword((prev) => !prev);
     };
 
     return (
@@ -94,11 +105,23 @@ const SignIn = () => {
                             fullWidth
                             name="password"
                             label="Password"
-                            type="password"
+                            type={showPassword ? 'text' : 'password'}
                             id="password"
                             autoComplete="current-password"
                             value={formData.password}
                             onChange={handleChange}
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <MuiIconButton
+                                            onClick={handlePasswordVisibilityToggle}
+                                            edge="end"
+                                        >
+                                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                                        </MuiIconButton>
+                                    </InputAdornment>
+                                )
+                            }}
                         />
                         <Button
                             type="submit"
