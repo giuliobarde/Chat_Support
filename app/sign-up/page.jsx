@@ -10,16 +10,17 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { signUpUser } from '../firebaseService';
 
 const SignUp = () => {
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [error, setError] = useState(null);
+    const router = useRouter();
+    
     const [formData, setFormData] = useState({
         username: '',
         email: '',
         password: '',
         confirmPassword: '',
     });
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [error, setError] = useState(null);
-    const router = useRouter();
 
     const handleChange = (e) => {
         const { name, value } = e.target;

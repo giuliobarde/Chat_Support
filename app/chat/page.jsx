@@ -6,7 +6,7 @@ import MessageIcon from '@mui/icons-material/Message';
 import SendIcon from '@mui/icons-material/Send';
 import { useRouter } from 'next/navigation';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth, signOut } from '../firebase/config'; // Correctly import signOut
+import { auth, signOut } from '../firebase/config';
 
 export default function Home() {
   const [user] = useAuthState(auth);
