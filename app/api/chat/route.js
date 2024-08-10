@@ -1,69 +1,98 @@
-import { NextResponse } from "next/server";
-import OpenAI from "openai";
+import {
+  StreamingTextResponse,
+  createStreamDataTransformer
+} from 'ai';
+import { ChatOpenAI } from '@langchain/openai';
+import { PromptTemplate } from '@langchain/core/prompts';
+import { HttpResponseOutputParser } from 'langchain/output_parsers';
+import { CharacterTextSplitter } from 'langchain/text_splitter';
+import { RunnableSequence } from '@langchain/core/runnables';
+import { formatDocumentsAsString } from 'langchain/util/document';
+import { JSONLoader } from 'langchain/document_loaders/fs/json';
 
-const systemPrompt = `Hello! Thank you for reaching out to Headstarter. We're here to help you make the most out of your interview practice experience. Whether you have questions about using our platform, need assistance with technical issues, or are looking for guidance on how to get the best feedback from our AI, we're here for you!
+const loader = new JSONLoader(
+  "app/data/data.json",
+  ["/state", "/code", "/nickname", "/website", "/admission_date", "/admission_number", "/capital_city", "/capital_url", "/population", "/population_rank", "/constitution_url", "/twitter_url"],
+);
 
-Please provide details about your issue or question:
+const TEMPLATE = `You are a polite chatbot that answers questions based on the following context:
+==============================
+Context: {context}
+==============================
+Current conversation: {chat_history}
 
-Account & Login Issues: If you're having trouble with your account or logging in, let us know your username or email associated with the account and any error messages you’re seeing.
+user: {question}
+assistant:`;
 
-Technical Problems: For issues related to our interview practice sessions, such as bugs, glitches, or difficulties with the AI, please describe the problem in detail and include any relevant screenshots if possible.
+export const dynamic = 'force-dynamic';
 
-Feedback and Performance: If you need help interpreting the feedback you received from the AI or want tips on improving your practice sessions, share the specifics of the feedback and your current goals.
-
-General Inquiries: For any other questions about features, subscription plans, or our services, just ask!
-
-Our support team is dedicated to providing you with a smooth and effective practice experience. We'll do our best to respond promptly and help you get back on track. Thank you for using Headstarter, and happy practicing!`;
+const formatMessage = (message) => {
+  return `${message.role}: ${message.content}`;
+};
 
 export async function POST(req) {
   try {
-    const rawBody = await req.text();
-    console.log('Raw body received:', rawBody);
+    const { messages } = await req.json();
 
-    let data;
-    try {
-      data = rawBody ? JSON.parse(rawBody) : {};
-    } catch (parseError) {
-      console.error('Error parsing request body:', parseError);
-      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
-    }
+    const formattedPreviousMessages = messages.slice(0, -1).map(formatMessage);
 
-    console.log('Parsed data:', data);
+    const currentMessageContent = messages[messages.length - 1].content;
 
-    const openai = new OpenAI();
-    const completion = await openai.chat.completions.create({
-      messages: [
-        { role: "system", content: systemPrompt },
-        ...data.messages
-      ],
-      model: "gpt-3.5-turbo",
-      stream: true,
+    const docs = await loader.load();
+
+    const prompt = PromptTemplate.fromTemplate(TEMPLATE);
+
+    const model = new ChatOpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+      model: 'gpt-3.5-turbo',
+      temperature: 0.5,
+      streaming: true,
+      verbose: true,
     });
 
-    const encoder = new TextEncoder();
-    const stream = new ReadableStream({
-      async start(controller) {
-        try {
-          for await (const chunk of completion) {
-            const text = chunk.choices[0]?.delta?.content || '';
-            if (text) {
-              const encodedText = encoder.encode(text);
-              controller.enqueue(encodedText);
-            }
-          }
-        } catch (err) {
-          controller.error(err);
-        } finally {
-          controller.close();
-        }
+    const parser = new HttpResponseOutputParser();
+
+    const chain = RunnableSequence.from([
+      {
+        question: (input) => input.question,
+        chat_history: (input) => input.chat_history,
+        context: () => formatDocumentsAsString(docs),
+      },
+      prompt,
+      model,
+      parser,
+    ]);
+
+    // Convert the response into a friendly text-stream
+    const stream = await chain.stream({
+      chat_history: formattedPreviousMessages.join('\n'),
+      question: currentMessageContent,
+    });
+
+    // Handle and accumulate stream data
+    const handleStream = async (stream) => {
+      let accumulatedText = '';
+      const reader = stream.getReader();
+      let result = await reader.read();
+
+      while (!result.done) {
+        const chunk = new TextDecoder().decode(result.value);
+        console.log('Received chunk:', chunk);
+        accumulatedText += chunk;
+        result = await reader.read();
       }
-    });
 
-    return new NextResponse(stream, {
-      headers: { 'Content-Type': 'text/plain; charset=utf-8' }
-    });
+      console.log('Final accumulated result:', accumulatedText);
+      return accumulatedText;
+    };
+
+    const responseText = await handleStream(stream);
+
+    return new StreamingTextResponse(responseText);
   } catch (error) {
-    console.error('Error:', error);
-    return NextResponse.json({ error: 'An error occurred' }, { status: 500 });
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      { status: error.status ?? 500, headers: { 'Content-Type': 'application/json' } }
+    );
   }
 }
