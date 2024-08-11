@@ -10,7 +10,7 @@ import { formatDocumentsAsString } from 'langchain/util/document';
 import { JSONLoader } from 'langchain/document_loaders/fs/json';
 
 const loader = new JSONLoader(
-  "data/data.json",
+  "public/data/data.json",
   [
     "/state",
     "/code",
