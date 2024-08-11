@@ -107,7 +107,7 @@ export default function Home() {
       setMessages(updatedMessages);
 
       setMessage('');
-      setLoading(true); // Start loading
+      setLoading(true);
 
       try {
         const response = await fetch('/api/chat', {
@@ -143,7 +143,7 @@ export default function Home() {
       } catch (error) {
         console.error('Error sending message:', error);
       } finally {
-        setLoading(false); // Stop loading
+        setLoading(false);
       }
     }
   };
