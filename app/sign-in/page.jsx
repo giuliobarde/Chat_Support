@@ -60,7 +60,7 @@ const SignIn = () => {
                         variant="h6"
                         sx={{ flexGrow: 1, color: 'white' }}
                     >
-                        Chat-Support
+                        Eagle-Support
                     </Typography>
                     <IconButton
                         edge="end"

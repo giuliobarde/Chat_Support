@@ -12,7 +12,7 @@ const LandingPage = () => {
                     variant="h6"
                     sx={{ flexGrow: 1, color: 'white' }}
                 >
-                    Chat-Support
+                    Eagle-Support
                 </Typography>
             </Toolbar>
         </AppBar>

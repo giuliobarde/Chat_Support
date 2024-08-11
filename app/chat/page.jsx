@@ -7,6 +7,7 @@ import SendIcon from '@mui/icons-material/Send';
 import { useRouter } from 'next/navigation';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, signOut } from '../firebase/config';
+import { fetchUsername } from "../firebaseService";
 
 // Custom loading dots CSS
 const loadingDotStyle = `
@@ -38,16 +39,6 @@ const loadingDotStyle = `
 
 export default function Home() {
   const [user] = useAuthState(auth);
-  const [message, setMessage] = useState('');
-  const [showChat, setShowChat] = useState(false);
-  const [messages, setMessages] = useState([
-    {
-      role: "assistant",
-      content: "Hi! I'm the USA support assistant. How can I help you today?",
-    },
-  ]);
-  const [loading, setLoading] = useState(false); // Loading state
-  const messagesEndRef = useRef(null);
   const router = useRouter();
 
   // Effect to handle redirection when not signed in
@@ -56,6 +47,39 @@ export default function Home() {
       router.push('/sign-in');
     }
   }, [user, router]);
+
+  const [message, setMessage] = useState('');
+  const [showChat, setShowChat] = useState(false);
+  const [username, setUsername] = useState('');
+
+  // Fetch and set the username when the user changes
+  useEffect(() => {
+    const fetchAndSetUsername = async () => {
+      if (user) {
+        const fetchedUsername = await fetchUsername(user);
+        if (fetchedUsername) {
+          setUsername(fetchedUsername);
+        }
+      }
+    };
+    fetchAndSetUsername();
+  }, [user]);
+
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(false); // Loading state
+  const messagesEndRef = useRef(null);
+
+  // Update the initial message when username changes
+  useEffect(() => {
+    if (username) {
+      setMessages([
+        {
+          role: "assistant",
+          content: `Hi ${username}! I'm the USA support assistant. How can I help you today`,
+        },
+      ]);
+    }
+  }, [username]);
 
   const sendMessage = async () => {
     if (message.trim()) {

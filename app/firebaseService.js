@@ -1,7 +1,22 @@
-import { auth } from "./firebase/config";
+import { auth, db } from "./firebase/config";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { collection, doc, setDoc, getDocs, query, where } from "firebase/firestore";
-import { db } from "./firebase/config";
+import { collection, doc, setDoc, getDocs, query, where, getDoc } from "firebase/firestore";
+
+// Fetch username
+export const fetchUsername = async (user) => {
+  if (user) {
+    const userId = user.uid;
+    const userDoc = await getDoc(doc(db, "users", userId));
+    if (userDoc.exists()) {
+      return userDoc.data().username;
+    } else {
+      console.error('No such user document!');
+    }
+  } else {
+    console.error('User is not defined!');``
+  }
+  return null;
+};
 
 // User sign-up
 export const signUpUser = async (username, email, password) => {
