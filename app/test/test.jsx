@@ -1990,8 +1990,9 @@ export default function Home() {
           variant="h1"
           component="h1"
           style={{ color: "#1976d2" }}
+        
         >
-          Headstarter Chatbot
+          US States Chatbot
         </Typography>
 
         <Box 
@@ -2007,7 +2008,7 @@ export default function Home() {
             <Card key={index} sx={{ width: '300px', mb: 2, position: 'relative', mx: 1 }}>
               <CardMedia
                 component="img"
-                height="140"
+                height="200"
                 image={state.state_flag_url}
                 alt={`${state.state} Flag`}
                 sx={{ objectFit: 'cover' }}
@@ -2017,12 +2018,7 @@ export default function Home() {
                 <Typography variant="body2"><strong>Capital City:</strong> {state.capital_city}</Typography>
                 <Typography variant="body2"><strong>Population:</strong> {state.population.toLocaleString()} (Rank: {state.population_rank})</Typography>
                 <Typography variant="body2"><strong>Official Website:</strong> <a href={state.website} target="_blank" rel="noopener noreferrer">{state.website}</a></Typography>
-                <img src={state.state_seal_url} alt={`${state.state} Seal`} style={{ maxWidth: '100px', display: 'block', marginTop: '8px' }} />
-                <img src={state.map_image_url} alt={`${state.state} Map`} style={{ maxWidth: '100px', display: 'block', marginTop: '8px' }} />
-                <Box mt={2}>
-                  <a href={state.twitter_url} target="_blank" rel="noopener noreferrer">Twitter</a> |
-                  <a href={state.facebook_url} target="_blank" rel="noopener noreferrer">Facebook</a>
-                </Box>
+                
               </CardContent>
             </Card>
           ))}
