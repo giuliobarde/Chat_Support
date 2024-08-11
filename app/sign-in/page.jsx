@@ -71,9 +71,13 @@ const SignIn = () => {
                     </IconButton>
                 </Toolbar>
             </AppBar>
+
             <Container maxWidth="sm" sx={{ mt: 8, pt: 8 }}>
                 <Box
                     sx={{
+                        backgroundImage : 'images/UnitedStates.png',
+                        backgroundSize : 'cover',
+                        bacgroundPosition : 'center',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
