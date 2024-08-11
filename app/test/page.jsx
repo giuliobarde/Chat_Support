@@ -1,86 +1,25 @@
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
-import { TextField, Typography, Box, AppBar, Toolbar, Button, Stack, IconButton, Fab, Card, CardMedia, CardContent } from '@mui/material';
+import { TextField, Typography, Box, AppBar, Toolbar, Button, Stack, IconButton, Fab, CardMedia } from '@mui/material';
+import { Card, CardContent } from '@mui/material';
+
 import MessageIcon from '@mui/icons-material/Message';
 import SendIcon from '@mui/icons-material/Send';
-import { useRouter } from 'next/navigation';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth, signOut } from '../firebase/config';
-import { fetchUsername } from "../firebaseService";
-
-// Custom loading dots CSS
-const loadingDotStyle = `
-  .loading-dots {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  .loading-dot {
-    width: 10px;
-    height: 10px;
-    margin: 0 3px;
-    background-color: rgba(0, 0, 0, 0.6);
-    border-radius: 50%;
-    animation: dot-flashing 1.5s infinite linear;
-  }
-  .loading-dot:nth-child(2) {
-    animation-delay: 0.3s;
-  }
-  .loading-dot:nth-child(3) {
-    animation-delay: 0.6s;
-  }
-  @keyframes dot-flashing {
-    0% { background-color: rgba(0, 0, 0, 0.6); }
-    50% { background-color: rgba(0, 0, 0, 1); }
-    100% { background-color: rgba(0, 0, 0, 0.6); }
-  }
-`;
+// import { useAuthState } from 'react-firebase-hooks/auth';
+// import { auth, signOut } from '../firebase/config';
 
 export default function Home() {
-  const [user] = useAuthState(auth);
-  const router = useRouter();
-
-  // Effect to handle redirection when not signed in
-  useEffect(() => {
-    if (user === null && sessionStorage.getItem('user') === null) {
-      router.push('/sign-in');
-    }
-  }, [user, router]);
-
   const [states, setStates] = useState([]);
   const [message, setMessage] = useState('');
   const [showChat, setShowChat] = useState(false);
-  const [username, setUsername] = useState('');
-
-  // Fetch and set the username when the user changes
-  useEffect(() => {
-    const fetchAndSetUsername = async () => {
-      if (user) {
-        const fetchedUsername = await fetchUsername(user);
-        if (fetchedUsername) {
-          setUsername(fetchedUsername);
-        }
-      }
-    };
-    fetchAndSetUsername();
-  }, [user]);
-
-  const [messages, setMessages] = useState([]);
-  const [loading, setLoading] = useState(false); // Loading state
+  const [messages, setMessages] = useState([
+    {
+      role: "assistant",
+      content: "Hi! I'm the USA support assistant. How can I help you today?",
+    },
+  ]);
   const messagesEndRef = useRef(null);
-
-  // Update the initial message when username changes
-  useEffect(() => {
-    if (username) {
-      setMessages([
-        {
-          role: "assistant",
-          content: `Hi ${username}! I'm the USA support assistant. How can I help you today`,
-        },
-      ]);
-    }
-  }, [username]);
 
   useEffect(() => {
     // Fetch the states data from the JSON file
@@ -107,7 +46,6 @@ export default function Home() {
       setMessages(updatedMessages);
 
       setMessage('');
-      setLoading(true); // Start loading
 
       try {
         const response = await fetch('/api/chat', {
@@ -142,8 +80,6 @@ export default function Home() {
 
       } catch (error) {
         console.error('Error sending message:', error);
-      } finally {
-        setLoading(false); // Stop loading
       }
     }
   };
@@ -161,6 +97,7 @@ export default function Home() {
     }
   }, [messages]);
 
+  /*
   const handleSignOut = async () => {
     try {
       await signOut(auth);
@@ -170,6 +107,7 @@ export default function Home() {
       console.error('Failed to sign out:', error);
     }
   };
+  */
 
   const handleExpandClick = (stateName) => {
     setExpandedState(expandedState === stateName ? null : stateName)
@@ -180,15 +118,16 @@ export default function Home() {
       <AppBar position="fixed">
         <Toolbar>
           <Typography variant="h6" color="inherit" style={{ flexGrow: 1 }}>
-          Eagle-Support: The USA Chatbot
+            Chat-Support
           </Typography>
-           <Button 
+          {/* Comment out the log out button */}
+          {/* <Button 
             variant="contained" 
             onClick={handleSignOut}
             color="primary"
           >
             Log out
-          </Button> 
+          </Button> */}
         </Toolbar>
       </AppBar>
       <Box
@@ -200,6 +139,14 @@ export default function Home() {
         justifyContent="center"
         position="relative"
       >
+        <Typography
+          variant="h1"
+          component="h1"
+          style={{ color: "#1976d2" }}
+        >
+          US States Chatbot
+        </Typography>
+
         <Box 
           width = "100%"
           display = "flex"
