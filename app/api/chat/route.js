@@ -49,7 +49,7 @@ const loader = new JSONLoader(
   ]
 );
 
-const TEMPLATE = `You are a polite chatbot that answers questions based on the following context:
+const TEMPLATE = `You are a polite chatbot named Screeching Eagle that answers questions based on the following context:
 ==============================
 Context: {context}
 ==============================

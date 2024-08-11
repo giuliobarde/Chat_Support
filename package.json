@@ -16,7 +16,7 @@
     "@firebase/firestore": "^4.6.5",
     "@langchain/core": "^0.2.21",
     "@mui/icons-material": "^5.16.6",
-    "@mui/material": "^5.16.6",
+    "@mui/material": "^5.16.7",
     "@mui/utils": "^5.16.6",
     "ai": "^3.3.3",
     "dewy-ts": "^0.4.0",

@@ -8,6 +8,34 @@ import { useRouter } from 'next/navigation';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, signOut } from '../firebase/config';
 
+// Custom loading dots CSS
+const loadingDotStyle = `
+  .loading-dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .loading-dot {
+    width: 10px;
+    height: 10px;
+    margin: 0 3px;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 50%;
+    animation: dot-flashing 1.5s infinite linear;
+  }
+  .loading-dot:nth-child(2) {
+    animation-delay: 0.3s;
+  }
+  .loading-dot:nth-child(3) {
+    animation-delay: 0.6s;
+  }
+  @keyframes dot-flashing {
+    0% { background-color: rgba(0, 0, 0, 0.6); }
+    50% { background-color: rgba(0, 0, 0, 1); }
+    100% { background-color: rgba(0, 0, 0, 0.6); }
+  }
+`;
+
 export default function Home() {
   const [user] = useAuthState(auth);
   const [message, setMessage] = useState('');
@@ -18,6 +46,7 @@ export default function Home() {
       content: "Hi! I'm the USA support assistant. How can I help you today?",
     },
   ]);
+  const [loading, setLoading] = useState(false); // Loading state
   const messagesEndRef = useRef(null);
   const router = useRouter();
 
@@ -35,6 +64,7 @@ export default function Home() {
       setMessages(updatedMessages);
 
       setMessage('');
+      setLoading(true); // Start loading
 
       try {
         const response = await fetch('/api/chat', {
@@ -69,6 +99,8 @@ export default function Home() {
 
       } catch (error) {
         console.error('Error sending message:', error);
+      } finally {
+        setLoading(false); // Stop loading
       }
     }
   };
@@ -101,7 +133,7 @@ export default function Home() {
       <AppBar position="fixed">
         <Toolbar>
           <Typography variant="h6" color="inherit" style={{ flexGrow: 1 }}>
-            Chat-Support
+            Eagle-Support
           </Typography>
           <Button 
             variant="contained" 
@@ -168,6 +200,21 @@ export default function Home() {
                   </Box>
                 </Box>
               ))}
+              {loading && (
+                <Box
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  p={2}
+                >
+                  <style>{loadingDotStyle}</style>
+                  <Box className="loading-dots">
+                    <Box className="loading-dot" />
+                    <Box className="loading-dot" />
+                    <Box className="loading-dot" />
+                  </Box>
+                </Box>
+              )}
               <Box ref={messagesEndRef} />
             </Stack>
             <Box
