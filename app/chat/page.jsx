@@ -76,7 +76,7 @@ export default function Home() {
       setMessages([
         {
           role: "assistant",
-          content: `Hi ${username}! I'm the USA support assistant. How can I help you today`,
+          content: `Hi ${username}! I'm the USA support assistant. Unfortunately, AI features are currently unavailable, try again another time.`,
         },
       ]);
     }
